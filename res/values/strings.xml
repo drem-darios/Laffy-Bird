@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Laffy Bird</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="box">Box</string>
+    <string name="start">Start</string>
+    <string name="title_game">Laffy Bird</string>
+    <string name="tap_to_play_desc">Tap to play</string>
+    <string name="ground_desc">The ground.</string>
+    <string name="game_over_desc">Game Over</string>
+
+</resources>

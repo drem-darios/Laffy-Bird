@@ -1,0 +1,57 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:screenOrientation="portrait"
+    tools:context=".Game" >
+
+    <cs646.assignment4.laffybird.view.GameView
+        android:id="@+id/gameView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@drawable/day_background" />
+    
+    <cs646.assignment4.laffybird.api.Bird
+        android:id="@+id/bird"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@anim/bird_motion" />
+
+    <cs646.assignment4.laffybird.api.Pipe
+        android:id="@+id/pipe1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:rotation="180"
+        android:background="@drawable/pipe1" />
+    
+    <cs646.assignment4.laffybird.api.Pipe
+        android:id="@+id/pipe2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_above="@+id/ground"
+        android:background="@drawable/pipe2" />
+    
+    <ImageView
+        android:id="@+id/ground"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:scaleType="fitXY"
+        android:layout_alignParentBottom="true"
+        android:contentDescription="@string/ground_desc"
+        android:src="@drawable/ground1" />
+
+    <ImageView
+        android:id="@+id/gameOver"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/bird"
+        android:visibility="invisible"
+        android:contentDescription="@string/game_over_desc"
+        android:src="@drawable/game_over" />
+
+</RelativeLayout>
