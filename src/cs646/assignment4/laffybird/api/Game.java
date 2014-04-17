@@ -1,34 +1,37 @@
 package cs646.assignment4.laffybird.api;
 
+import java.util.LinkedList;
 import java.util.Queue;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import cs646.assignment4.laffybird.R;
 import cs646.assignment4.laffybird.view.GameView;
 
 public class Game extends Activity {
 
+	private static final int MIN_PIPE_HEIGHT = 50;
+	private static final int MAX_PIPES = 5;
 	private boolean running;
 	private int width, height;
-	private Queue<Pipe> queue;
 	private GameView view;
 	private Bird bird;
+	private Queue<Pipe> topObstacles = new LinkedList<Pipe>();
+	private Queue<Pipe> bottomObstacles = new LinkedList<Pipe>();
 	private Pipe topObstacle;
 	private Pipe bottomObstacle;
 	private Thread gameThread;
+	private RelativeLayout layout;
 
 	@Override
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
@@ -37,6 +40,7 @@ public class Game extends Activity {
 		setContentView(R.layout.activity_game);
 		this.bird = (Bird) findViewById(R.id.bird);
 		this.view = (GameView) findViewById(R.id.gameView);
+		this.layout = (RelativeLayout) findViewById(R.id.relativeLayout);
 		this.topObstacle = (Pipe) findViewById(R.id.pipe1);
 		this.bottomObstacle = (Pipe) findViewById(R.id.pipe2);
 		
@@ -50,6 +54,7 @@ public class Game extends Activity {
 		topObstacle.start();
 		bottomObstacle.start();
 		gameThread.start();
+//		layout.postDelayed(new PipeBuilder(), 1000);
 	}
 
 	public void endGame() {
@@ -58,11 +63,13 @@ public class Game extends Activity {
 		topObstacle.stop();
 		bottomObstacle.stop();
 		final View gameOver = findViewById(R.id.gameOver);
-		gameOver.getHandler().post(new Runnable() {
-		    public void run() {
-		    	gameOver.setVisibility(View.VISIBLE);
-		    }
-		});
+		if (gameOver.getHandler() != null) {
+			gameOver.getHandler().post(new Runnable() {
+			    public void run() {
+			    	gameOver.setVisibility(View.VISIBLE);
+			    }
+			});	
+		}
 	}
 
 	public boolean isRunning() {
@@ -74,12 +81,42 @@ public class Game extends Activity {
 	}
 
 	private void initGame() {
-
 		initView();
 		this.bird.setPosition(this);
 		this.view.setGame(this);
 		this.gameThread = new Thread(new GameRunner());
+//		buildPipeLists();
 	}
+
+//	private void buildPipeLists() {
+//		
+//		for (int i = 0; i < MAX_PIPES; i++) {
+//			Pipe topPipe = new Pipe(this);
+//			topPipe.setImageResource(R.drawable.pipe1);
+//			topPipe.setAdjustViewBounds(true); // set the ImageView bounds to match the Drawable's dimensions
+//			
+//			RelativeLayout.LayoutParams topParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+//			topParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+//			topParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+////			topParams.addRule(RelativeLayout.ROTATION);
+//			topPipe.setLayoutParams(topParams);
+////			new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT,
+////					LayoutParams.WRAP_CONTENT)
+//			Pipe bottomPipe = new Pipe(this);
+//			bottomPipe.setImageResource(R.drawable.pipe2);
+//			bottomPipe.setAdjustViewBounds(true); // set the ImageView bounds to match the Drawable's dimensions
+//			
+//			RelativeLayout.LayoutParams bottomParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+//			bottomParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+//			bottomParams.addRule(RelativeLayout.ABOVE, R.id.ground);
+//			
+//			bottomPipe.setLayoutParams(bottomParams);
+//			
+//			setObstacleHeights(topPipe, bottomPipe);
+//			topObstacles.add(topPipe);
+//			bottomObstacles.add(bottomPipe);	
+//		}
+//	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
 	private void initView() {
@@ -89,10 +126,10 @@ public class Game extends Activity {
 
 		this.width = screenSize.x;
 		this.height = screenSize.y;
-		
 		setObstacleHeights();
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setObstacleHeights() {
 		BitmapDrawable ground = (BitmapDrawable) this.getResources().getDrawable(R.drawable.ground1);
 		int groundHeight = ground.getBitmap().getHeight();
@@ -101,9 +138,15 @@ public class Game extends Activity {
 		
 		int combinedHeight = (height / 2) - groundHeight;
 		int gap = (birdHeight / 2) + 10; // leave a little room
-		topObstacle.getLayoutParams().height = combinedHeight - gap;
-		bottomObstacle.getLayoutParams().height = combinedHeight - gap;
+		// take into consideration the gap for both top and bottom
+		int topHeight = MIN_PIPE_HEIGHT + (int)(Math.random() * (combinedHeight - (gap * 2)));
+		int difference = combinedHeight - topHeight;
+		int bottomHeight = combinedHeight + difference;
 		
+		topObstacle.getLayoutParams().height = topHeight - gap;
+		bottomObstacle.getLayoutParams().height = bottomHeight - gap;
+		topObstacle.setX(width);
+		bottomObstacle.setX(width);
 	}
 
 	public int getWidth() {
@@ -143,28 +186,37 @@ public class Game extends Activity {
 			runGame();
 		}
 	}
+	
+	public class PipeBuilder implements Runnable {
+		@Override
+		public void run() {
+			addPipes();
+		}
+	}
+	
+	private void addPipes() {
+		if (running && !topObstacles.isEmpty() && !bottomObstacles.isEmpty()) {
+			Pipe top = topObstacles.remove();
+			Pipe bottom = bottomObstacles.remove();
+			layout.addView(top);
+			layout.addView(bottom);
+			
+			top.start();
+			bottom.start();
+			layout.postDelayed(new PipeBuilder(), 1000);	
+		}
+	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void runGame() {
 		while(running) {
 			if (detectCollission()) {
 				endGame();
 			}
-			if (topObstacle.isOutOfBounds() || bottomObstacle.isOutOfBounds()) {
-				this.topObstacle = (Pipe) findViewById(R.id.pipe1);
-				this.bottomObstacle = (Pipe) findViewById(R.id.pipe2);
-				
-				LinearLayout gv = (LinearLayout)findViewById(R.id.gameView);
-				LayoutInflater layoutInflater = getLayoutInflater();
-				View view;
-				for (int i = 1; i < 101; i++){
-		            // Add the text layout to the parent layout
-		            view = layoutInflater.inflate(R.layout.text_layout, parentLayout, false);
-		 
-		            // In order to get the view we have to use the new view with text_layout in it
-		            Pipe textView = (Pipe)view.findViewById(R.id.pipe1);
-		            // Add the text view to the parent layout
-		            gv.addView(textView);
-		        }      
+			if (topObstacle.getTranslationX() < (width * -1) || bottomObstacle.getTranslationX() < (width * -1)) {
+//				topObstacle = getNextTopObstacle();
+//				bottomObstacle = getNextBottomObstacle();
+				endGame();
 			}
 			try {
 				Thread.sleep(100);
@@ -172,6 +224,14 @@ public class Game extends Activity {
 				Log.e("Game.runGame", "Something bad happened while sleeping");
 			}
 		}
+	}
+
+	private Pipe getNextBottomObstacle() {
+		return null;
+	}
+
+	private Pipe getNextTopObstacle() {
+		return null;
 	}
 
 }

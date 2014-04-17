@@ -33,18 +33,14 @@ public class Pipe extends ImageView {
 		// transition the x coord of the pipe
 		this.transition = transition - scrollSpeed;
 		setTranslationX(transition);
-		postDelayed(mover, 50);
+		postDelayed(mover, 150);
 	}
-
+	
 	public class PipeMover implements Runnable {
 		@Override
 		public void run() {
 			move();
 		}
-	}
-	
-	public boolean isOutOfBounds() {
-		return this.getX() < 0;
 	}
 
 }

@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:screenOrientation="portrait"
+    android:id="@+id/relativeLayout"
     tools:context=".Game" >
 
     <cs646.assignment4.laffybird.view.GameView
@@ -10,7 +11,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:background="@drawable/day_background" />
-    
+
     <cs646.assignment4.laffybird.api.Bird
         android:id="@+id/bird"
         android:layout_width="wrap_content"
@@ -23,25 +24,25 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:rotation="180"
-        android:background="@drawable/pipe1" />
-    
+        android:background="@drawable/pipe1"
+        android:rotation="180" />
+
     <cs646.assignment4.laffybird.api.Pipe
         android:id="@+id/pipe2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:layout_above="@+id/ground"
+        android:layout_alignParentRight="true"
         android:background="@drawable/pipe2" />
     
     <ImageView
         android:id="@+id/ground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:scaleType="fitXY"
         android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
         android:contentDescription="@string/ground_desc"
+        android:scaleType="fitXY"
         android:src="@drawable/ground1" />
 
     <ImageView
@@ -50,8 +51,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/bird"
-        android:visibility="invisible"
         android:contentDescription="@string/game_over_desc"
-        android:src="@drawable/game_over" />
+        android:src="@drawable/game_over"
+        android:visibility="invisible" />
 
 </RelativeLayout>

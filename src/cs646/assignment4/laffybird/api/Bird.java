@@ -10,7 +10,7 @@ import android.widget.ImageView;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class Bird extends ImageView {
-	private int fallSpeed = 10;
+	private int fallSpeed = 5;
 	private int flapSpeed = 30;
 	private BirdMover mover = new BirdMover();
 	private BirdFlapper flapper = new BirdFlapper();
